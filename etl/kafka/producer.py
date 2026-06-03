@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 from kafka import KafkaProducer
 
-from etl.extract.newsapi_client import fetch_news
+from etl.extract.newsapi_client import fetch_top_headlines
 
 load_dotenv()
 
@@ -21,7 +21,7 @@ def create_producer():
     )
 
 
-def prepare_article(article: dict, query: str) -> dict:
+def prepare_article(article: dict) -> dict:
     return {
         "source": article.get("source", {}),
         "author": article.get("author"),
@@ -31,15 +31,14 @@ def prepare_article(article: dict, query: str) -> dict:
         "urlToImage": article.get("urlToImage"),
         "publishedAt": article.get("publishedAt"),
         "content": article.get("content"),
-        "query": query,
         "ingested_at": datetime.now(timezone.utc).isoformat(),
     }
 
 
-def publish_news(query: str = "artificial intelligence"):
+def publish_news():
     producer = create_producer()
 
-    news_data = fetch_news(query=query)
+    news_data = fetch_top_headlines()
     articles = news_data.get("articles", [])
 
     if not articles:
@@ -49,7 +48,7 @@ def publish_news(query: str = "artificial intelligence"):
     print(f"Publishing {len(articles)} articles to Kafka topic: {KAFKA_TOPIC}")
 
     for article in articles:
-        prepared_article = prepare_article(article, query)
+        prepared_article = prepare_article(article)
 
         article_key = prepared_article.get("url") or prepared_article.get("title")
 
