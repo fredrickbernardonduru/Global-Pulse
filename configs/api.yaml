@@ -1,0 +1,6 @@
+newsapi:
+  base_url: "https://newsapi.org/v2"
+  endpoint: "top-headlines"
+  country: "us"
+  category: "business"
+  page_size: 20
