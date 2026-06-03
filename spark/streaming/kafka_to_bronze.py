@@ -13,6 +13,8 @@ KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
 KAFKA_TOPIC = "raw-news"
 
 
+
+
 def create_spark_session():
     return (
         SparkSession.builder
@@ -20,8 +22,10 @@ def create_spark_session():
         .master("local[*]")
         .config(
             "spark.jars.packages",
-            "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1"
+            "org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.0"
         )
+        .config("spark.hadoop.io.native.lib.available", "false")
+        .config("spark.sql.streaming.forceDeleteTempCheckpointLocation", "true")
         .getOrCreate()
     )
 
