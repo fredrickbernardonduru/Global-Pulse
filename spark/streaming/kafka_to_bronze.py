@@ -1,18 +1,12 @@
-from pathlib import Path
-
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, current_timestamp
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-BRONZE_OUTPUT_PATH = str(PROJECT_ROOT / "data" / "bronze" / "news")
-CHECKPOINT_PATH = str(PROJECT_ROOT / "data" / "bronze" / "_checkpoints" / "news")
+BRONZE_OUTPUT_PATH = "/app/data/bronze/news"
+CHECKPOINT_PATH = "/app/data/bronze/_checkpoints/news"
 
-
-KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+KAFKA_BOOTSTRAP_SERVERS = "kafka:9092"
 KAFKA_TOPIC = "raw-news"
-
-
 
 
 def create_spark_session():
@@ -24,8 +18,6 @@ def create_spark_session():
             "spark.jars.packages",
             "org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.0"
         )
-        .config("spark.hadoop.io.native.lib.available", "false")
-        .config("spark.sql.streaming.forceDeleteTempCheckpointLocation", "true")
         .getOrCreate()
     )
 
@@ -69,7 +61,6 @@ def write_to_bronze(bronze_df):
 
 def main():
     spark = create_spark_session()
-
     spark.sparkContext.setLogLevel("WARN")
 
     kafka_df = read_from_kafka(spark)
